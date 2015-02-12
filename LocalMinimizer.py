@@ -10,7 +10,7 @@ import copy
 class LocalMinimizer:
 
     # Initialisiert Werte.
-    def __init__(self, starttasten):
+    def __init__(self, starttasten, log = False):
         # Lies die Bigrammhäufigkeiten aus Datei ein
         self.freq = {}
         with codecs.open('2gramme_de1.csv', 'r', 'utf-8') as csvfile:
@@ -22,22 +22,38 @@ class LocalMinimizer:
         self.tasten = starttasten
         # Berechne und speichere ihre Konflikthäufigkeit
         self.conflicts = self.calc_conflicts(self.tasten)
+        # Speichere, ob der Suchvorgang geloggt werden soll
+        self.log = log
+        self.logstring = u''
         # Gehe davon aus, dass noch kein lokales Minimum erreicht
         self.found_min = False
     
     # Wechselt von der aktuellen Belegung solange zur konfliktminimierenden Nachbarbelegung
     # bis lokales Minimum erreicht, und gibt dieses aus.
     def run(self):
-        # Solange lokales Minimum nicht erreicht
-        while self.found_min == False:
-            # Wechsle zur Nachbarbelegung mit der kleinsten Konflikthäufigkeit
-            self.min_neighbour()
+        if self.log:
+            # Solange lokales Minimum nicht erreicht
+            while self.found_min == False:
+                # Logge die aktuelle Belegung und ihre Konflikthäufigkeit
+                self.log_layout()
+                # Wechsle zur Nachbarbelegung mit der kleinsten Konflikthäufigkeit
+                self.min_neighbour()
+                # Logge, ob lokales Minimum erreicht
+                self.log_min()
+        else:
+            # Solange lokales Minimum nicht erreicht
+            while self.found_min == False:
+                # Wechsle zur Nachbarbelegung mit der kleinsten Konflikthäufigkeit
+                self.min_neighbour()
         # Lokales Minimum erreicht, gib Belegung und Konflikthäufigkeit aus
         print 'Lokales Minimum gefunden'
-        print self.tasten
+        print self.pretty_layout(self.tasten)
         print 'Konflikte:', self.conflicts
+        # Schreibe das Log in CSV-Datei
+        with codecs.open('handylog.csv', 'a', 'utf-8') as logfile:
+            logfile.write(self.logstring)
 
-    # Berechnet die Konflikthäufigkeit der aktuellen Tastenbelegung.
+    # Berechnet die Konflikthäufigkeit einer Tastenbelegung.
     def calc_conflicts(self, tasten):
         conflicts = 0
         # Gehe alle Tasten durch
@@ -45,8 +61,10 @@ class LocalMinimizer:
             # Gehe jedes Buchstabenpaar der Taste durch
             for i in range(0,len(taste)):
                 for j in range(i+1,len(taste)):
-                    # Betrachte Bigramme "ab" und "ba"
-                    bigrams = [taste[i] + taste[j], taste[j] + taste[i]]
+                    # Betrachte Bigramme "ab", "ba", "Ab", "Ba", "AB", "BA"
+                    bigrams = [taste[i] + taste[j], taste[j] + taste[i],
+                               taste[i].upper() + taste[j], taste[j].upper() + taste[i],
+                               taste[i].upper() + taste[j].upper(), taste[j].upper() + taste[i].upper()]
                     for bigram in bigrams:
                         if bigram in self.freq:
                             # Schlage Bigrammhäufigkeit nach
@@ -92,8 +110,27 @@ class LocalMinimizer:
         self.tasten = besttasten
         # Speichere, ob lokales Minimum gefunden
         self.found_min = found_min
+    
+    # Gibt eine Tastenbelegung als einigermaßen leserlichen String aus.
+    def pretty_layout(self, tasten):
+        pretty = u''
+        for taste in tasten:
+            pretty += u'('
+            for stabe in taste:
+                pretty += stabe
+            pretty += u') '
+        return pretty[:-1]
+    
+    # Schreibe die aktuelle Tastenbelegung mit ihrer Konflikthäufigkeit ins Log.
+    def log_layout(self):
+        self.logstring += (u'"'+self.pretty_layout(self.tasten)+u'";')
+        self.logstring += (u'"'+str(self.conflicts)+u'";')
+    
+    # Schreibe zum letzten Logeintrag 1 hinzu, wenn lokales Minimum gefunden, sonst 0.
+    def log_min(self):
+        self.logstring += (u'"'+str(int(self.found_min))+u'"\n')
 
 if __name__ == "__main__":
     belegung = [[u'e',u'b',u'f'], [u'n',u'm',u'w'], [u'i',u'g',u'k',u'q'], [u'r',u'o',u'z',u'x'], [u't',u'c',u'v',u'j'], [u's',u'l',u'p',u'ß'], [u'a',u'u',u'ü',u'y'], [u'd',u'h',u'ä',u'ö']]
-    minimizer = OverlapMinimizer(belegung)
+    minimizer = LocalMinimizer(belegung,True)
     minimizer.run()
