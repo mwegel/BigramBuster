@@ -46,8 +46,8 @@ class Layout:
         return pretty[:-1]
     
     # Normiert die Schreibweise einer Tastenbelegung, indem die Buchstaben auf jeder Taste jeweils
-    # alphabetisch geordnet werden.
+    # alphabetisch geordnet werden, und die Tasten untereinander alphabetisch sortiert werden.
     def alphabetical(self, tasten):
         for taste in tasten:
-            tasten.sort()
-        return tasten
+            taste.sort()
+        tasten.sort()
