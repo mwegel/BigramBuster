@@ -15,7 +15,8 @@ class LocalMinimizer:
         self.layout = Layout()
         
         # Speichere die Start-Tastenbelegung (normiert)
-        self.tasten = self.layout.alphabetical(starttasten)
+        self.tasten = starttasten
+        self.layout.alphabetical(self.tasten)
         # Berechne und speichere ihre Konflikthäufigkeit
         self.conflicts = self.layout.calc_conflicts(self.tasten)
         # Speichere, ob der Suchvorgang geloggt werden soll
@@ -57,7 +58,7 @@ class LocalMinimizer:
         # Gehe davon aus, dass lokales Minimum erreicht - wird überschrieben, falls nicht
         found_min = True
         # Gehe davon aus, dass aktuelle Belegung = beste Belegung
-        besttasten = copy.deepcopy(self.tasten)
+        besttasten = self.tasten
         # Gehe alle möglichen Tastenpaare durch
         for i in range(0,tastenzahl):
             taste1 = self.tasten[i]
@@ -76,11 +77,12 @@ class LocalMinimizer:
                             # Verbesserung erzielt, also war das noch kein lokales Minimum
                             found_min = False
                             # Die neue Belegung ist jetzt die beste Belegung
-                            besttasten = copy.deepcopy(neutasten)
+                            besttasten = neutasten
+                            self.layout.alphabetical(besttasten)
                             # Speichere Konflikthäufigkeit
                             self.conflicts = conflicts
-        # Speichere die beste Belegung (normiert)
-        self.tasten = self.layout.alphabetical(besttasten)
+        # Speichere die beste Belegung
+        self.tasten = besttasten
         # Speichere, ob lokales Minimum gefunden
         self.found_min = found_min
         
