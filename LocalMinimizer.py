@@ -11,9 +11,9 @@ from Layout import Layout
 class LocalMinimizer:
 
     # Initialisiert Werte.
-    def __init__(self, starttasten, log = False):
-        self.layout = Layout()
-        
+    def __init__(self, starttasten, layout, log = False):
+        # Übernimm das Layout-Objekt
+        self.layout = layout
         # Speichere die Start-Tastenbelegung (normiert)
         self.tasten = starttasten
         self.layout.alphabetical(self.tasten)
@@ -98,5 +98,5 @@ class LocalMinimizer:
 
 if __name__ == "__main__":
     belegung = [[u'e',u'b',u'f'], [u'n',u'm',u'w'], [u'i',u'g',u'k',u'q'], [u'r',u'o',u'z',u'x'], [u't',u'c',u'v',u'j'], [u's',u'l',u'p',u'ß'], [u'a',u'u',u'ü',u'y'], [u'd',u'h',u'ä',u'ö']]
-    minimizer = LocalMinimizer(belegung,True)
+    minimizer = LocalMinimizer(belegung,Layout(),True)
     minimizer.run()
