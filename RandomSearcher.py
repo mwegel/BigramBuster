@@ -29,7 +29,7 @@ for ii in range(10):
         belegung[stelle].append(buchstaben[jj])
     
     # Finde lokales Minimum mit dieser zufälligen Startbelegung
-    minimizer = LocalMinimizer(belegung,True)
+    minimizer = LocalMinimizer(belegung,layout,True)
     (tasten,conflicts) = minimizer.run()
     # Vergleiche lokales Minimum mit bisherigem Stand
     if conflicts < bestconflicts:
